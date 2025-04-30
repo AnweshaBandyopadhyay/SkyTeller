@@ -1,23 +1,23 @@
 import React from 'react';
-import ThemeToggle from '../component/ThemeToggle';
+
 import Daily from '../component/Daily';
 import Hourly from '../component/Hourly';
 import Stats from '../component/Stats';
 import Sun from '../component/Sun';
 import Map from '../component/Map';
+import Logo from '/assets/logodark.svg';
 
 const RightSec = () => {
   return (
-    <div className="flex-1 w-full p-4 relative">
+    <div className="flex-1 w-full p-4 relative mt-4 mr-4">
       {/* Top-right toggle */}
-      <div className="absolute top-4 right-4 z-10">
-        <ThemeToggle />
-      </div>
+      {/* <div className="absolute top-4 right-4 z-10 mr-6">
+        <Toggle />
+      </div> */}
 
       {/* Top bar */}
       <div className="flex items-center space-x-2 mb-6 px-6">
-        <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-xs text-white/80">icon</div>
-        <span className="font-semibold text-white text-lg">skyteller.com</span>
+        <img className='w-20 sm:w-28 md:w-36 lg:w-44 xl:w-52 h-auto' src={Logo} alt="Logo" />
       </div>
 
       {/* Daily Cards */}
@@ -36,9 +36,8 @@ const RightSec = () => {
          {/* Right section: Two Sun components stacked */}
          <div className="flex flex-col gap-4">
             <Sun />
-            <Map />
+            <Sun />
           </div>
-        
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import LeftSec from '../sides/LeftSec';
 import RightSec from '../sides/RightSec';
-import backgroundImage from '/assets/background1.svg';
+import backgroundImage from '/assets/background4.svg';
 
 const OnePage = () => {
   return (

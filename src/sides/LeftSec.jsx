@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import MainCard from "../component/MainCard";
 import SubCard from "../component/SubCard";
-import { useActiveLocation } from "../context/ActiveLocationContext"; // ✅ Import the hook
+import { useActiveLocation } from "../context/ActiveLocationContext";
+import tzLookup from "tz-lookup"; // ✅ Import the tz-lookup package
 
 const LeftSec = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [selectedCities, setSelectedCities] = useState([]);
-  const { setActiveLocation } = useActiveLocation(); // ✅ Use the hook
+  const { activeLocation, setActiveLocation } = useActiveLocation();
 
   const date = new Date();
   const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -20,7 +21,7 @@ const LeftSec = () => {
         setSuggestions([]);
         return;
       }
-  
+
       try {
         const res = await fetch(
           `https://geocoding-api.open-meteo.com/v1/search?name=${searchQuery}&count=5&language=en&format=json`
@@ -31,46 +32,45 @@ const LeftSec = () => {
         console.error("Error fetching location suggestions from Open-Meteo:", err);
       }
     };
-  
+
     const timeoutId = setTimeout(fetchSuggestions, 300);
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
-  
 
   const handleSelectCity = async (location) => {
     try {
       const lat = location.latitude;
       const lon = location.longitude;
+      const timezone = tzLookup(lat, lon); // ✅ Get timezone name from coordinates
 
-  
       const res = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,precipitation,weather_code,wind_speed_10m,relative_humidity_2m,snowfall,showers,rain&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,weather_code&timezone=${timezone}`
       );
       const data = await res.json();
-  
+
       const newCard = {
         city: `${location.name}, ${location.state || location.country}`,
         temp: Math.round(data.current.temperature_2m),
         feelsLike: Math.round(data.current.apparent_temperature || data.current.temperature_2m),
-        iconCode: data.current.weather_code, // We'll map this to a custom icon
+        iconCode: data.current.weather_code,
         latitude: lat,
         longitude: lon,
+        timezone, // ✅ Pass timezone
       };
-  
+
       setActiveLocation({ ...newCard, isDefault: false });
-  
+
       setSelectedCities((prev) => {
         const updated = [newCard, ...prev.filter(c => c.city !== newCard.city)];
-        return updated.slice(0, 2); // max 2 cards
+        return updated.slice(0, 3);
       });
-  
+
       setSearchQuery("");
       setSuggestions([]);
     } catch (err) {
       console.error("Error fetching weather from Open-Meteo:", err);
     }
   };
-  
 
   return (
     <div className="w-full md:max-w-[400px] p-4 md:p-6 md:m-6 m-0 rounded-2xl border-2 border-white/10 bg-white/15 backdrop-blur-[3px] text-white shadow-lg font-poppins">
@@ -87,21 +87,21 @@ const LeftSec = () => {
           placeholder="Search cities..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-4 py-2 rounded-xl border border-white/5  bg-white/20 backdrop-blur-lg placeholder-white placeholder-white/50 text-white focus:outline-none focus:ring-2 focus:ring-white/30 transition"
+          className="w-full px-4 py-2 rounded-xl border border-white/5 bg-white/20 backdrop-blur-lg placeholder-white placeholder-white/50 text-white focus:outline-none focus:ring-2 focus:ring-white/30 transition"
         />
         {suggestions.length > 0 && (
-  <ul className="absolute z-10 mt-2 w-full bg-white/90 text-[#1E78C7] rounded-xl border-[1px] border-solid border-white/20 shadow-lg backdrop-blur-xl max-h-60 overflow-y-auto">
-    {suggestions.map((item, index) => (
-      <li
-        key={index}
-        onClick={() => handleSelectCity(item)}
-        className="px-4 py-2 hover:bg-white/10 cursor-pointer"
-      >
-        {item.name}, {item.state || ""}, {item.country}
-      </li>
-    ))}
-  </ul>
-)}
+          <ul className="absolute z-10 mt-2 w-full bg-white/90 text-[#1E78C7] rounded-xl border-[1px] border-solid border-white/20 shadow-lg backdrop-blur-xl max-h-60 overflow-y-auto">
+            {suggestions.map((item, index) => (
+              <li
+                key={index}
+                onClick={() => handleSelectCity(item)}
+                className="px-4 py-2 hover:bg-white/10 cursor-pointer"
+              >
+                {item.name}, {item.state || ""}, {item.country}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Main Weather Card */}
@@ -118,9 +118,12 @@ const LeftSec = () => {
             <SubCard
               key={index}
               city={city.city}
+              latitude={city.latitude}
+              longitude={city.longitude}
               temp={city.temp}
               feelsLike={city.feelsLike}
               iconCode={city.iconCode}
+              timezone={city.timezone} // ✅ Pass timezone
             />
           ))
         )}

@@ -1,49 +1,57 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-// Create the context with a default value
+/**
+ * Context to store and provide active geolocation information.
+ */
 const ActiveLocationContext = createContext({
   activeLocation: null,
   setActiveLocation: () => {},
-  error: null, // Optional: To store any error related to geolocation
+  error: null,
+  loading: true,
 });
 
-// Provider component
+/**
+ * Provider component to fetch and supply geolocation data to its children.
+ */
 export const ActiveLocationProvider = ({ children }) => {
   const [activeLocation, setActiveLocation] = useState(null);
-  const [error, setError] = useState(null); // Track geolocation errors
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Get the user's geolocation if available
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setActiveLocation({
-            lat: position.coords.latitude,
-            lon: position.coords.longitude,
-          });
-        },
-        (err) => {
-          setError("Failed to get geolocation");
-          console.error(err);
-        }
-      );
-    } else {
-      setError("Geolocation is not supported by this browser");
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by this browser.");
+      setLoading(false);
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setActiveLocation({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+        });
+        setLoading(false);
+      },
+      (err) => {
+        setError(`Failed to get geolocation: ${err.message}`);
+        setLoading(false);
+      }
+    );
   }, []);
 
   return (
-    <ActiveLocationContext.Provider value={{ activeLocation, setActiveLocation, error }}>
+    <ActiveLocationContext.Provider
+      value={{ activeLocation, setActiveLocation, error, loading }}
+    >
       {children}
     </ActiveLocationContext.Provider>
   );
 };
 
-// Custom hook for accessing the context
+/**
+ * Custom hook to use active location context.
+ */
 export const useActiveLocation = () => {
-  const context = useContext(ActiveLocationContext);
-  if (!context) {
-    throw new Error("useActiveLocation must be used within an ActiveLocationProvider");
-  }
-  return context;
+  return useContext(ActiveLocationContext);
 };

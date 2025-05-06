@@ -1,5 +1,4 @@
 import React from 'react';
-
 import Daily from '../component/Daily';
 import Hourly from '../component/Hourly';
 import Stats from '../component/Stats';
@@ -36,7 +35,7 @@ const RightSec = () => {
          {/* Right section: Two Sun components stacked */}
          <div className="flex flex-col gap-4">
             <Sun />
-            <Sun />
+            <Map/>
           </div>
         </div>
       </div>

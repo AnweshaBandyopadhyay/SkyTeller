@@ -9,6 +9,8 @@ const MainCard = () => {
   const [feelsLike, setFeelsLike] = useState(null);
   const [weatherText, setWeatherText] = useState("");
   const [iconCode, setIconCode] = useState("");
+  const [latitude, setLatitude] = useState(null); // Add latitude state
+  const [longitude, setLongitude] = useState(null); // Add longitude state
   const [loading, setLoading] = useState(true);
 
   const { activeLocation, setActiveLocation } = useActiveLocation();
@@ -40,13 +42,16 @@ const MainCard = () => {
         );
         const locationData = await locationRes.json();
         const address = locationData.address;
-        const location = address.city || address.town || address.village || address.hamlet || address.county || address.state || "Unknown Location";
+        const location =
+          address.city || address.town || address.village || address.hamlet || address.county || address.state || "Unknown Location";
 
         setLocationName(location);
 
         // Set active location
         setActiveLocation({
           city: location,
+          latitude: lat, // Set latitude
+          longitude: lon, // Set longitude
           temp: currentTemp,
           feelsLike: currentFeelsLike,
           iconCode: currentIconCode,
@@ -57,6 +62,10 @@ const MainCard = () => {
         const now = new Date();
         const options = { weekday: "long", day: "numeric", month: "long" };
         setDate(now.toLocaleDateString("en-US", options));
+
+        // Save latitude and longitude to state
+        setLatitude(lat);
+        setLongitude(lon);
 
         setLoading(false);
       } catch (err) {
@@ -114,37 +123,11 @@ const MainCard = () => {
   };
 
   const getCustomIcon = (code) => {
-    const iconMap = {
-      0: "sunny.svg",
-      1: "partly-cloudy.svg",
-      2: "partly-cloudy.svg",
-      3: "overcast.svg",
-      45: "mist.svg",
-      48: "mist.svg",
-      51: "rain.svg",
-      53: "rain.svg",
-      55: "rain.svg",
-      56: "rain.svg",
-      57: "rain.svg",
-      61: "rain.svg",
-      63: "rain.svg",
-      65: "rain.svg",
-      66: "rain.svg",
-      67: "rain.svg",
-      71: "snow.svg",
-      73: "snow.svg",
-      75: "snow.svg",
-      77: "snow.svg",
-      80: "showers.svg",
-      81: "showers.svg",
-      82: "showers.svg",
-      85: "snow.svg",
-      86: "snow.svg",
-      95: "thunderstorm.svg",
-      96: "thunderstorm.svg",
-      99: "thunderstorm.svg",
-    };
-    return `/assets/${iconMap[code] || "unknown.svg"}`;
+    const hour = new Date().getHours();
+    const isNight = hour >= 18; // After 6 PM
+  
+    // Use either {code}.svg or {code}n.svg based on time
+    return `/assets/${code}${isNight ? "n" : ""}.svg`;
   };
 
   const isActive = activeLocation?.city === locationName;
@@ -154,9 +137,11 @@ const MainCard = () => {
     : "relative w-full rounded-2xl p-8 bg-white/10 border-[1px] border-solid border-white/20 backdrop-blur-lg text-white transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg";
 
   const handleClick = () => {
-    if (locationName && temp != null) {
+    if (locationName && temp != null && latitude && longitude) {
       setActiveLocation({
         city: locationName,
+        latitude,  // Ensure latitude is available
+        longitude, // Ensure longitude is available
         temp,
         feelsLike,
         iconCode,
@@ -178,7 +163,7 @@ const MainCard = () => {
       <div className="absolute top-4 left-4 flex items-center gap-1 text-sm">
         <MapPin size={16} />
         {/* Display dynamically fetched location name */}
-        <span>{locationName || "Your Location"}</span>
+        <span>{"Your Location"}</span>
       </div>
 
       <div className="flex flex-col items-center justify-center mt-5">

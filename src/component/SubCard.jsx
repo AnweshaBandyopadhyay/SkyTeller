@@ -2,58 +2,46 @@ import React from "react";
 import { MapPin } from "lucide-react";
 import { useActiveLocation } from "../context/ActiveLocationContext";
 
-// New function: Map Open-Meteo weather codes to your custom icons
-const getCustomIcon = (weatherCode) => {
-  const weatherCodeMap = {
-    0: "sunny.svg",
-    1: "partly-cloudy.svg",
-    2: "partly-cloudy.svg",
-    3: "overcast.svg",
-    45: "mist.svg",
-    48: "mist.svg",
-    51: "showers.svg",
-    53: "showers.svg",
-    55: "showers.svg",
-    56: "rain.svg",
-    57: "rain.svg",
-    61: "rain.svg",
-    63: "rain.svg",
-    65: "rain.svg",
-    66: "rain.svg",
-    67: "rain.svg",
-    71: "snow.svg",
-    73: "snow.svg",
-    75: "snow.svg",
-    77: "snow.svg",
-    80: "showers.svg",
-    81: "showers.svg",
-    82: "showers.svg",
-    85: "snow.svg",
-    86: "snow.svg",
-    95: "thunderstorm.svg",
-    96: "thunderstorm.svg",
-    99: "thunderstorm.svg",
-  };
-
-  return `/assets/${weatherCodeMap[weatherCode] || "unknown.svg"}`;
+// Get icon based on weather code and location's local time
+const getCustomIcon = (code, timezone) => {
+  try {
+    const now = new Date().toLocaleString("en-US", { timeZone: timezone });
+    const hour = new Date(now).getHours();
+    const isNight = hour < 6 || hour >= 18;
+    return `/assets/${code}${isNight ? "n" : ""}.svg`;
+  } catch (error) {
+    console.error("Error determining local time for icon:", error);
+    return `/assets/${code}.svg`; // fallback
+  }
 };
 
-const SubCard = ({ city, temp, feelsLike, iconCode }) => {
+const SubCard = ({ city, temp, feelsLike, iconCode, latitude, longitude, timezone }) => {
   const { activeLocation, setActiveLocation } = useActiveLocation();
 
   const isActive = activeLocation?.city === city && !activeLocation?.isDefault;
 
   const handleClick = () => {
-    setActiveLocation({ city, temp, feelsLike, iconCode, isDefault: false });
+    if (city && temp != null && latitude && longitude) {
+      setActiveLocation({
+        city,
+        latitude,
+        longitude,
+        temp,
+        feelsLike,
+        iconCode,
+        isDefault: false,
+        timezone,
+      });
+    }
   };
 
   return (
     <div
       onClick={handleClick}
-      className={`cursor-pointer flex justify-between items-center w-full rounded-2xl p-4 ${
+      className={`cursor-pointer flex justify-between items-center w-full rounded-2xl p-4 transition-all ${
         isActive
-          ? "bg-white border-[2px] border-solid border-white/30 backdrop-blur-lg text-[#1E78C7] transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg"
-          : "bg-white/10 border-[1px] border-solid border-white/20 backdrop-blur-lg text-white transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg"
+          ? "bg-white border-[2px] border-solid border-white/30 backdrop-blur-lg text-[#1E78C7] transform hover:scale-105 hover:shadow-lg"
+          : "bg-white/10 border-[1px] border-solid border-white/20 backdrop-blur-lg text-white transform hover:scale-105 hover:shadow-lg"
       }`}
     >
       <div>
@@ -66,7 +54,7 @@ const SubCard = ({ city, temp, feelsLike, iconCode }) => {
       </div>
       <img
         className="w-20 h-auto"
-        src={getCustomIcon(iconCode)}
+        src={getCustomIcon(iconCode, timezone)}
         alt="Weather"
       />
     </div>

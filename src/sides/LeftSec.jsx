@@ -2,18 +2,49 @@ import React, { useState, useEffect } from "react";
 import MainCard from "../component/MainCard";
 import SubCard from "../component/SubCard";
 import { useActiveLocation } from "../context/ActiveLocationContext";
-import tzLookup from "tz-lookup"; // ✅ Import the tz-lookup package
+import tzLookup from "tz-lookup";
 
 const LeftSec = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [selectedCities, setSelectedCities] = useState([]);
   const { activeLocation, setActiveLocation } = useActiveLocation();
+  const [time, setTime] = useState("");
+  const [today, setToday] = useState("");
 
-  const date = new Date();
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-  const today = date.toLocaleDateString(undefined, options);
+  const formatTimeAndDate = (timezone) => {
+    const now = timezone
+      ? new Date().toLocaleString("en-US", { timeZone: timezone })
+      : new Date();
+
+    const options = {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+
+    setTime(new Date(now).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }));
+    setToday(new Date(now).toLocaleDateString(undefined, options));
+  };
+
+  useEffect(() => {
+    if (activeLocation?.timezone) {
+      formatTimeAndDate(activeLocation.timezone);
+    } else {
+      formatTimeAndDate();
+    }
+
+    const intervalId = setInterval(() => {
+      if (activeLocation?.timezone) {
+        formatTimeAndDate(activeLocation.timezone);
+      } else {
+        formatTimeAndDate();
+      }
+    }, 10000); // Updates every 10 seconds
+
+    return () => clearInterval(intervalId);
+  }, [activeLocation]);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -41,7 +72,7 @@ const LeftSec = () => {
     try {
       const lat = location.latitude;
       const lon = location.longitude;
-      const timezone = tzLookup(lat, lon); // ✅ Get timezone name from coordinates
+      const timezone = tzLookup(lat, lon);
 
       const res = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,weather_code&timezone=${timezone}`
@@ -55,7 +86,7 @@ const LeftSec = () => {
         iconCode: data.current.weather_code,
         latitude: lat,
         longitude: lon,
-        timezone, // ✅ Pass timezone
+        timezone,
       };
 
       setActiveLocation({ ...newCard, isDefault: false });
@@ -87,10 +118,10 @@ const LeftSec = () => {
           placeholder="Search cities..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-4 py-2 rounded-xl border border-white/5 bg-white/20 backdrop-blur-lg placeholder-white placeholder-white/50 text-white focus:outline-none focus:ring-2 focus:ring-white/30 transition"
+          className="w-full px-4 py-2 rounded-xl border border-white/5 bg-white/20 backdrop-blur-lg placeholder-white placeholder-white text-white focus:outline-none focus:ring-2 focus:ring-white/30 transition"
         />
         {suggestions.length > 0 && (
-          <ul className="absolute z-10 mt-2 w-full bg-white/90 text-[#1E78C7] rounded-xl border-[1px] border-solid border-white/20 shadow-lg backdrop-blur-xl max-h-60 overflow-y-auto">
+          <ul className="absolute z-10 mt-2 w-full bg-white text-[#1E78C7] rounded-xl border-[1px] border-solid border-white/20 shadow-lg backdrop-blur-xl max-h-60 overflow-y-auto">
             {suggestions.map((item, index) => (
               <li
                 key={index}
@@ -123,7 +154,7 @@ const LeftSec = () => {
               temp={city.temp}
               feelsLike={city.feelsLike}
               iconCode={city.iconCode}
-              timezone={city.timezone} // ✅ Pass timezone
+              timezone={city.timezone}
             />
           ))
         )}

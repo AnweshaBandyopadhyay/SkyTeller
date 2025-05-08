@@ -5,14 +5,14 @@ import { useActiveLocation } from '../context/ActiveLocationContext';
 
 const OnePage = () => {
   const { activeLocation } = useActiveLocation();
-  const [backgroundImage, setBackgroundImage] = useState('/assets/background2.svg');
+  const [backgroundImage, setBackgroundImage] = useState(`${import.meta.env.BASE_URL}assets/background2.svg`);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchWeatherAndSetBackground = async () => {
       if (!activeLocation) return;
 
-      setLoading(true); // Begin loading
+      setLoading(true);
 
       const { latitude, longitude } = activeLocation;
 
@@ -30,16 +30,16 @@ const OnePage = () => {
           const isNight = hour < 6 || hour >= 18;
 
           const suffix = isNight ? 'n' : '';
-          const imagePath = `/assets/bg${weatherCode}${suffix}.svg`;
+          const imagePath = `${import.meta.env.BASE_URL}assets/bg${weatherCode}${suffix}.svg`;
           setBackgroundImage(imagePath);
         } else {
-          setBackgroundImage('/assets/default.svg');
+          setBackgroundImage(`${import.meta.env.BASE_URL}assets/default.svg`);
         }
       } catch (err) {
         console.error("Failed to fetch weather or background:", err);
         setBackgroundImage('/assets/default.svg');
       } finally {
-        setLoading(false); // Done loading
+        setLoading(false);
       }
     };
 

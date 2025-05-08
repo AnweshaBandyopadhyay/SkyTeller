@@ -9,17 +9,17 @@ const MainCard = () => {
   const [feelsLike, setFeelsLike] = useState(null);
   const [weatherText, setWeatherText] = useState("");
   const [iconCode, setIconCode] = useState("");
-  const [latitude, setLatitude] = useState(null); // Add latitude state
-  const [longitude, setLongitude] = useState(null); // Add longitude state
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const { activeLocation, setActiveLocation } = useActiveLocation();
 
   useEffect(() => {
-    // Fetch current location's weather and details
+    
     const fetchWeatherAndLocation = async (lat, lon) => {
       try {
-        // Fetch weather data from Open-Meteo
+        
         const weatherRes = await fetch(
           `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,weather_code&timezone=auto`
         );
@@ -35,7 +35,7 @@ const MainCard = () => {
         setWeatherText(currentWeatherText);
         setIconCode(currentIconCode);
 
-        // Fetch location name using OpenStreetMap Reverse Geocoding API
+        
         const locationRes = await fetch(
           `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
           { headers: { "Accept-Language": "en" } }
@@ -47,23 +47,23 @@ const MainCard = () => {
 
         setLocationName(location);
 
-        // Set active location
+        
         setActiveLocation({
           city: location,
-          latitude: lat, // Set latitude
-          longitude: lon, // Set longitude
+          latitude: lat, 
+          longitude: lon, 
           temp: currentTemp,
           feelsLike: currentFeelsLike,
           iconCode: currentIconCode,
           isDefault: true,
         });
 
-        // Set the current date
+        
         const now = new Date();
         const options = { weekday: "long", day: "numeric", month: "long" };
         setDate(now.toLocaleDateString("en-US", options));
 
-        // Save latitude and longitude to state
+        
         setLatitude(lat);
         setLongitude(lon);
 
@@ -74,11 +74,11 @@ const MainCard = () => {
       }
     };
 
-    // Get current location using geolocation API
+    
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        fetchWeatherAndLocation(latitude, longitude); // Fetch weather and location data
+        fetchWeatherAndLocation(latitude, longitude); 
       },
       (error) => {
         console.error("Geolocation error:", error);
@@ -88,7 +88,7 @@ const MainCard = () => {
   }, []);
 
   const mapWeatherCodeToText = (code) => {
-    // Map Open-Meteo weather codes to text descriptions
+    
     const weatherMap = {
       0: "Clear sky",
       1: "Mainly clear",
@@ -124,10 +124,9 @@ const MainCard = () => {
 
   const getCustomIcon = (code) => {
     const hour = new Date().getHours();
-    const isNight = hour >= 18; // After 6 PM
+    const isNight = hour >= 18 || hour < 6;
   
-    // Use either {code}.svg or {code}n.svg based on time
-    return `/assets/${code}${isNight ? "n" : ""}.svg`;
+    return `${import.meta.env.BASE_URL}assets/${code}${isNight ? "n" : ""}.svg`;
   };
 
   const isActive = activeLocation?.city === locationName;
@@ -140,8 +139,8 @@ const MainCard = () => {
     if (locationName && temp != null && latitude && longitude) {
       setActiveLocation({
         city: locationName,
-        latitude,  // Ensure latitude is available
-        longitude, // Ensure longitude is available
+        latitude,
+        longitude,
         temp,
         feelsLike,
         iconCode,
@@ -152,8 +151,19 @@ const MainCard = () => {
 
   if (loading) {
     return (
-      <div className="relative w-full rounded-2xl p-8 bg-white/20 border-[1px] border-solid border-white/20 backdrop-blur-lg text-white">
-        Loading...
+      <div className="relative w-full rounded-2xl p-8 bg-white/20 border-[1px] border-solid border-white/20 backdrop-blur-lg text-white animate-pulse">
+        <div className="absolute top-4 left-4 flex items-center gap-1 text-sm">
+          <div className="w-4 h-4 bg-white/40 rounded-full" />
+          <div className="w-24 h-3 bg-white/40 rounded" />
+        </div>
+  
+        <div className="flex flex-col items-center justify-center mt-10 space-y-4">
+          <div className="w-28 h-28 bg-white/30 rounded-full" />
+          <div className="w-24 h-3 bg-white/30 rounded" />
+          <div className="w-20 h-10 bg-white/40 rounded" />
+          <div className="w-28 h-3 bg-white/30 rounded" />
+          <div className="w-32 h-5 bg-white/50 rounded" />
+        </div>
       </div>
     );
   }
@@ -162,7 +172,7 @@ const MainCard = () => {
     <div className={cardClasses + " cursor-pointer"} onClick={handleClick}>
       <div className="absolute top-4 left-4 flex items-center gap-1 text-sm">
         <MapPin size={16} />
-        {/* Display dynamically fetched location name */}
+        
         <span>{"Your Location"}</span>
       </div>
 

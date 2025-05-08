@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useActiveLocation } from "../context/ActiveLocationContext";
-import tzlookup from "tz-lookup"; // ✅ Add this import
+import tzlookup from "tz-lookup";
 
 const Sun = () => {
   const { activeLocation } = useActiveLocation();
   const [sunData, setSunData] = useState({ sunrise: null, sunset: null });
   const [bgImage, setBgImage] = useState("sunbg.svg");
-  const [localTimezone, setLocalTimezone] = useState(null); // ✅ Add state for timezone
+  const [localTimezone, setLocalTimezone] = useState(null);
 
   const formatLocalTime = (dateStr, timezone) => {
     const utcDate = new Date(dateStr);
@@ -24,7 +24,7 @@ const Sun = () => {
 
       const { latitude, longitude } = activeLocation;
 
-      // ✅ Get the timezone using tz-lookup
+      
       try {
         const timezone = tzlookup(latitude, longitude);
         setLocalTimezone(timezone);
@@ -71,7 +71,7 @@ const Sun = () => {
     setBgImage(`sunbg${section}.svg`);
   }, [sunData]);
 
-  // ✅ Use the detected local timezone instead of browser timezone
+  
   const formattedSunrise =
     sunData.sunrise && localTimezone
       ? formatLocalTime(sunData.sunrise, localTimezone)
@@ -84,7 +84,7 @@ const Sun = () => {
   return (
     <div className="relative w-full max-w-2xl mx-auto rounded-[30px] p-4 bg-white/15 backdrop-blur-[3px] border-2 border-white/10 text-white flex flex-col items-center gap-2">
       <img
-        src={`/assets/${bgImage}`}
+        src={`${import.meta.env.BASE_URL}assets/${bgImage}`}
         alt="Sun background"
         className="w-full rounded-2xl object-cover"
       />
@@ -92,7 +92,7 @@ const Sun = () => {
       <div className="flex justify-between w-full px-4">
         <div className="text-center ml-12">
           <img
-            src="/assets/sunrise.svg"
+            src={`${import.meta.env.BASE_URL}assets/sunrise.svg`}
             alt="Sunrise icon"
             className="w-8 h-8 mx-auto"
           />
@@ -101,7 +101,7 @@ const Sun = () => {
         </div>
         <div className="text-center mr-12">
           <img
-            src="/assets/sunset.svg"
+            src={`${import.meta.env.BASE_URL}assets/sunset.svg`}
             alt="Sunset icon"
             className="w-8 h-8 mx-auto"
           />

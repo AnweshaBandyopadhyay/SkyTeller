@@ -74,7 +74,7 @@ const Hourly = () => {
             result.push({
               time: formattedHour,
               temp: Math.round(temperature_2m[i]),
-              icon: `/assets/${weather_code[i]}${isNight ? "n" : ""}.svg`,
+              icon: `${import.meta.env.BASE_URL}assets/${weather_code[i]}${isNight ? "n" : ""}.svg`,
             });
           }
 
@@ -124,7 +124,7 @@ const Hourly = () => {
                   }`}
                 >
                   <div className="text-xs font-medium pb-2">{hour.time}</div>
-                  <div className="text-xl font-bold">{hour.temp}°</div>
+                  <div className="text-xl font-bold">{hour.temp}Â°</div>
                   <img
                     className="w-8 h-auto pt-2"
                     src={hour.icon}

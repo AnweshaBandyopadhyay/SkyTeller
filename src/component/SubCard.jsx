@@ -2,16 +2,16 @@ import React from "react";
 import { MapPin } from "lucide-react";
 import { useActiveLocation } from "../context/ActiveLocationContext";
 
-// Get icon based on weather code and location's local time
+
 const getCustomIcon = (code, timezone) => {
   try {
     const now = new Date().toLocaleString("en-US", { timeZone: timezone });
     const hour = new Date(now).getHours();
     const isNight = hour < 6 || hour >= 18;
-    return `/assets/${code}${isNight ? "n" : ""}.svg`;
+    return `${import.meta.env.BASE_URL}assets/${code}${isNight ? "n" : ""}.svg`;
   } catch (error) {
     console.error("Error determining local time for icon:", error);
-    return `/assets/${code}.svg`; // fallback
+    return `${import.meta.env.BASE_URL}assets/${code}.svg`;
   }
 };
 

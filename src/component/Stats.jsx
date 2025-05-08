@@ -116,7 +116,7 @@ const Stats = () => {
       "UV Index": (
         <>
           <p className="mb-4">
-            <strong className="text-[#3ea72d]">0–2 (Low) :</strong> A UV index reading of 0 to 2 means low danger from the Sun's UV rays for the average person.<br />Wear sunglasses on bright days. If you burn easily, cover up and use broad spectrum SPF 15+ sunscreen. Bright surfaces, sand, water, and snow, will increase UV exposure. 
+            <strong className="text-[#3ea72d]">0–2 (Low) :</strong> A UV index reading of 0 to 2 means low danger from the Sun's UV rays for the average person.<br />Wear sunglasses on bright days. If you burn easily, cover up and use broad spectrum SPF 15+ sunscreen. Bright surfaces,sand, water, and snow, will increase UV exposure. 
           </p>
           <p className="mb-4">
             <strong className="text-[#FFCD17]">3–5 (Moderate) :</strong> A UV index reading of 3 to 5 means moderate risk of harm from unprotected sun exposure.<br />
@@ -267,8 +267,8 @@ const Stats = () => {
     };
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-        <div className="bg-white rounded-[30px] w-[90%] max-w-[1000px] overflow-hidden text-black">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4">
+        <div className="bg-white rounded-[30px] w-full max-w-[800px] max-h-[90vh] overflow-y-auto text-black p-6">
           <div className="relative h-52 w-full">
             <img
               src={backgroundImages[selectedStat.label]}
@@ -306,7 +306,7 @@ const Stats = () => {
             key={index}
             className="rounded-[20px] bg-white/10 border-[1px] border-white/20 backdrop-blur-[8px] p-4 animate-pulse"
           >
-            {/* Icon and label placeholder */}
+            
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 bg-white/30 rounded-full" />
@@ -315,7 +315,7 @@ const Stats = () => {
               <div className="w-4 h-4 bg-white/30 rounded-full" />
             </div>
   
-            {/* Value placeholder */}
+            
             <div className="text-4xl font-semibold mb-5 pt-2 pl-5">
               <div className="h-10 w-28 bg-white/30 rounded-md" />
             </div>

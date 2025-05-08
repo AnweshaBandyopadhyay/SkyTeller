@@ -124,7 +124,7 @@ const Hourly = () => {
                   }`}
                 >
                   <div className="text-xs font-medium pb-2">{hour.time}</div>
-                  <div className="text-xl font-bold">{hour.temp}Â°</div>
+                  <div className="text-xl font-bold">{hour.temp}°</div>
                   <img
                     className="w-8 h-auto pt-2"
                     src={hour.icon}

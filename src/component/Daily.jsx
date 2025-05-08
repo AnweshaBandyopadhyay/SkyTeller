@@ -93,7 +93,7 @@ const Daily = () => {
                   alt={day.day}
                 />
                 <div className="text-sm font-medium">{day.day}</div>
-                <div className="text-base font-bold">{day.temp}Â°</div>
+                <div className="text-base font-bold">{day.temp}°</div>
               </div>
             );
           })}
